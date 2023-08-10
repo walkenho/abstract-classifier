@@ -12,9 +12,8 @@ import arxiv
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
-from tqdm import tqdm
-
 from pandas.core.base import PandasObject
+from tqdm import tqdm
 
 logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(name)s - %(message)s",
@@ -51,7 +50,6 @@ def download_taxonomy() -> Dict:
     }
 
 
-
 def find_articles_by_category(
     client, categories: List, max_results=1, sort_by=arxiv.SortCriterion.SubmittedDate
 ) -> SearchResults:
@@ -86,8 +84,9 @@ def find_articles_by_category(
 
 def main():
     """Download arXiv taxonomy and article abstract."""
+
     def _deduplicate_by_id(data: pd.DataFrame):
-        return data.groupby('ids').first()
+        return data.groupby("ids").first()
 
     PandasObject.deduplicate_by_id = _deduplicate_by_id
 
@@ -114,9 +113,7 @@ def main():
 
     results = find_articles_by_category(arxiv_client, query_categories, max_results=1000)
 
-    data = (pd.DataFrame(dict(zip(results._fields, results)))
-            .deduplicate_by_id()
-            )
+    data = pd.DataFrame(dict(zip(results._fields, results))).deduplicate_by_id()
     logger.info("Deduplicated data. %s articles left.", data.shape[0])
     filepath_arxiv_data = datapath / "articles.csv"
     data.to_csv(filepath_arxiv_data)
