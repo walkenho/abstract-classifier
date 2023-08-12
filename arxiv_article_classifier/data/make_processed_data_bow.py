@@ -15,7 +15,7 @@ from sklearn.pipeline import FunctionTransformer, Pipeline
 
 from arxiv_article_classifier.data.load import load_processed_data
 
-STOPLIST = stopwords.words("english")
+STOPLIST = stopwords.words("english") + ["-"]
 LINEBREAK_REGEX = re.compile("(\n)+")
 LATEX_REGEX = re.compile(r"\$\S+\$")
 
@@ -88,7 +88,7 @@ def make_data_cleaning_pipeline():
 
 def convert_interim_to_processed_data(input_folder: Path, output_folder: Path) -> None:
     """Clean interim data and store to disk."""
-    logger.info("Entering convert_interim_to_processed_data")
+    logger.info("Entering convert_interim_to_processed_data.")
 
     (X_train, X_val, X_test, y_train, y_val, y_test), labels = load_processed_data(input_folder)
 
@@ -121,6 +121,7 @@ if __name__ == "__main__":
     output_folder = datafolder / "processed" / "bow-model"
     output_folder.mkdir(parents=True, exist_ok=True)
 
+    logger.info("Converting interim to processed data for BOW.")
     convert_interim_to_processed_data(
         input_folder=datafolder / "interim", output_folder=output_folder
     )
