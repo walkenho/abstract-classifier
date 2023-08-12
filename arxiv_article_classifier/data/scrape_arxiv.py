@@ -27,7 +27,6 @@ SearchResults = namedtuple("SearchResults", ["ids", "titles", "abstracts", "tags
 Taxonomy = namedtuple("Taxonomy", ["abbreviation", "description"])
 
 CATEGORIES_OF_INTEREST = [
-    "cs.AI",
     "cs.CL",
     "cs.CV",
     "cs.CY",
@@ -37,7 +36,6 @@ CATEGORIES_OF_INTEREST = [
     "cs.RO",
     "cs.SI",
     "eess.AS",
-    "eess.IV",
     "eess.SP",
     "eess.SY",
     "math.OC",

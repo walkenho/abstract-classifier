@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import pathlib
-from typing import Tuple
+import pickle
+from typing import Dict, Tuple
 
 import numpy as np
 
@@ -21,3 +22,9 @@ def load_processed_data(
     labels = np.load(folder / "labels.npy", allow_pickle=True)
 
     return (x_train, x_val, x_test, y_train, y_val, y_test), labels
+
+
+def load_taxonomy(filepath: pathlib.Path) -> Dict:
+    """Load arXiv taxonomy from filepath."""
+    with open(filepath, "rb") as f:
+        return pickle.load(f)
