@@ -2,13 +2,25 @@
 from __future__ import annotations
 
 import ast
+import logging
 import pathlib
+import sys
 from typing import Tuple
 
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import MultiLabelBinarizer
 from skmultilearn.model_selection import iterative_train_test_split
+
+from arxiv_article_classifier.data.scrape_arxiv import CATEGORIES_OF_INTEREST
+
+logging.basicConfig(
+    format="%(asctime)s [%(levelname)s] %(name)s - %(message)s",
+    level=logging.INFO,
+    datefmt="%Y-%m-%d %H:%M:%S",
+    stream=sys.stdout,
+)
+logger = logging.getLogger("make_interim_data.py")
 
 
 def multilabel_stratefied_train_validation_test_split(
@@ -46,6 +58,8 @@ def make_interim_data(
 
     Loads abstract data from input_folder/input_file, and performs a multilabel, stratified split.
     """
+    logger.info("Entering make_interim_data.")
+    logger.info("Read data.")
     df = pd.read_csv(input_file).assign(
         tags=lambda df: df["tags"].apply(
             lambda x: [tag for tag in ast.literal_eval(x) if tag in categories_to_keep]
@@ -68,6 +82,7 @@ def make_interim_data(
         abstracts, tag_matrix, test_size=test_size, validation_size=validation_size
     )
 
+    logger.info("Save data to %s.", output_folder)
     np.save(output_folder / "X_train.npy", x_train.flatten())
     np.save(output_folder / "X_val.npy", x_val.flatten())
     np.save(output_folder / "X_test.npy", x_test.flatten())
@@ -77,18 +92,12 @@ def make_interim_data(
     np.save(output_folder / "labels.npy", mlb.classes_)
 
 
-def load_processed_data(
-    folder: pathlib.Path,
-) -> Tuple[Tuple[np.array, np.array, np.array, np.array, np.array, np.array], np.array]:
-    """Load train, validation and test data and labels from folder."""
-    x_train = np.load(folder / "X_train.npy", allow_pickle=True)
-    x_val = np.load(folder / "X_val.npy", allow_pickle=True)
-    x_test = np.load(folder / "X_test.npy", allow_pickle=True)
-
-    y_train = np.load(folder / "y_train.npy", allow_pickle=True)
-    y_val = np.load(folder / "y_val.npy", allow_pickle=True)
-    y_test = np.load(folder / "y_test.npy", allow_pickle=True)
-
-    labels = np.load(folder / "labels.npy", allow_pickle=True)
-
-    return (x_train, x_val, x_test, y_train, y_val, y_test), labels
+if __name__ == "__main__":
+    datafolder = pathlib.Path(__file__).parent.parent.parent / "data"
+    make_interim_data(
+        input_file=datafolder / "raw" / "articles.csv",
+        output_folder=datafolder / "interim",
+        categories_to_keep=CATEGORIES_OF_INTEREST,
+        test_size=0.2,
+        validation_size=0.2,
+    )
