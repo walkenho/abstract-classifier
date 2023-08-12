@@ -26,6 +26,25 @@ logger = logging.getLogger("scrape_arxiv.py")
 SearchResults = namedtuple("SearchResults", ["ids", "titles", "abstracts", "tags"])
 Taxonomy = namedtuple("Taxonomy", ["abbreviation", "description"])
 
+CATEGORIES_OF_INTEREST = [
+    "cs.AI",
+    "cs.CL",
+    "cs.CV",
+    "cs.CY",
+    "cs.GT",
+    "cs.LG",
+    "cs.MA",
+    "cs.RO",
+    "cs.SI",
+    "eess.AS",
+    "eess.IV",
+    "eess.SP",
+    "eess.SY",
+    "math.OC",
+    "math.ST",
+    "math.NA",
+]
+
 
 def download_taxonomy() -> Dict:
     """Download arXiv taxonomy and return a dictionary."""
@@ -92,26 +111,7 @@ def main():
 
     datapath = Path(__file__).parent.parent.parent / "data" / "raw"
     arxiv_client = arxiv.Client(num_retries=20, page_size=500, delay_seconds=3)
-
-    query_categories = [
-        "cs.AI",
-        "cs.CL",
-        "cs.CV",
-        "cs.CY",
-        "cs.GT",
-        "cs.LG",
-        "cs.MA",
-        "cs.SI",
-        "eess.AS",
-        "eess.IV",
-        "eess.SP",
-        "eess.SY",
-        "math.OC",
-        "math.ST",
-        "math.NA",
-    ]
-
-    results = find_articles_by_category(arxiv_client, query_categories, max_results=1000)
+    results = find_articles_by_category(arxiv_client, CATEGORIES_OF_INTEREST, max_results=1000)
 
     data = pd.DataFrame(dict(zip(results._fields, results))).deduplicate_by_id()
     logger.info("Deduplicated data. %s articles left.", data.shape[0])
@@ -123,7 +123,7 @@ def main():
     filepath_taxonomy = datapath / "taxonomy.pkl"
     with open(filepath_taxonomy, "wb") as f:
         pickle.dump(taxonomy, f)
-        logger.info("Saved taxonomy to %s", filepath_taxonomy)
+    logger.info("Saved taxonomy to %s", filepath_taxonomy)
 
 
 if __name__ == "__main__":
