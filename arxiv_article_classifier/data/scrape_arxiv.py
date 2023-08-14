@@ -21,7 +21,7 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S",
     stream=sys.stdout,
 )
-logger = logging.getLogger("scrape_arxiv.py")
+logger = logging.getLogger(__name__)
 
 SearchResults = namedtuple("SearchResults", ["ids", "titles", "abstracts", "tags"])
 Taxonomy = namedtuple("Taxonomy", ["abbreviation", "description"])
@@ -52,11 +52,12 @@ def download_taxonomy() -> Dict:
         abbreviation, description = line.split("(")
         return Taxonomy(abbreviation.strip(), description.strip(")").strip())
 
-    logger.info("Downloading arXiv taxonomy")
+    logger.debug("Inside download taxonomy function")
     response = requests.get("https://arxiv.org/category_taxonomy", timeout=10)
     if response.status_code != 200:
         logger.error("Could not reach https://arxiv.org/category_taxonomy")
         raise ConnectionRefusedError("Could not reach https://arxiv.org/category_taxonomy")
+    logger.info("Taxonomy downloaded successfully.")
     soup = BeautifulSoup(response.text, features="xml")
     h4s = soup.find_all("h4")
     logger.info("Found %s entries.", len(h4s))
@@ -109,7 +110,7 @@ def main():
 
     datapath = Path(__file__).parent.parent.parent / "data" / "raw"
     arxiv_client = arxiv.Client(num_retries=20, page_size=500, delay_seconds=3)
-    results = find_articles_by_category(arxiv_client, CATEGORIES_OF_INTEREST, max_results=1000)
+    results = find_articles_by_category(arxiv_client, CATEGORIES_OF_INTEREST, max_results=3000)
 
     data = pd.DataFrame(dict(zip(results._fields, results))).deduplicate_by_id()
     logger.info("Deduplicated data. %s articles left.", data.shape[0])

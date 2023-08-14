@@ -13,7 +13,10 @@ import spacy
 from nltk.corpus import stopwords
 from sklearn.pipeline import FunctionTransformer, Pipeline
 
-from arxiv_article_classifier.data.load import load_processed_data
+from arxiv_article_classifier.data.make_processed_data_utils import (
+    convert_interim_to_processed_data,
+    delete_regular_expression,
+)
 
 STOPLIST = stopwords.words("english") + ["-"]
 LINEBREAK_REGEX = re.compile("(\n)+")
@@ -29,17 +32,12 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S",
     stream=sys.stdout,
 )
-logger = logging.getLogger("make_processed_data_bow.py")
+logger = logging.getLogger(__name__)
 
 
 def remove_stopwords(raw_text: str, stoplist: List[str]) -> str:
     """Remove stopwords from input string and return cleaned string."""
     return " ".join([word for word in raw_text.split() if word not in stoplist])
-
-
-def delete_regular_expression(raw_text: str, regex) -> str:
-    """Replace regular expression with empty space and return."""
-    return re.sub(regex, " ", raw_text)
 
 
 def lemmatize_document(text: str, spacy_model) -> str:
@@ -86,42 +84,15 @@ def make_data_cleaning_pipeline():
     )
 
 
-def convert_interim_to_processed_data(input_folder: Path, output_folder: Path) -> None:
-    """Clean interim data and store to disk."""
-    logger.info("Entering convert_interim_to_processed_data.")
-
-    (X_train, X_val, X_test, y_train, y_val, y_test), labels = load_processed_data(input_folder)
-
-    cleaning_pipe = make_data_cleaning_pipeline()
-
-    logger.info("Transform training data.")
-    X_train_cleaned = cleaning_pipe.transform(X_train)
-
-    logger.info("Transform validation data.")
-    X_val_cleaned = cleaning_pipe.transform(X_val)
-
-    logger.info("Transform test data.")
-    X_test_cleaned = cleaning_pipe.transform(X_test)
-
-    logger.info("Saving data to %s.", output_folder)
-    np.save(output_folder / "X_train.npy", X_train_cleaned)
-    np.save(output_folder / "X_val.npy", X_val_cleaned)
-    np.save(output_folder / "X_test.npy", X_test_cleaned)
-
-    np.save(output_folder / "y_train.npy", y_train)
-    np.save(output_folder / "y_val.npy", y_val)
-    np.save(output_folder / "y_test.npy", y_test)
-
-    np.save(output_folder / "labels.npy", labels)
-
-
 if __name__ == "__main__":
     datafolder = Path(__file__).parent.parent.parent / "data"
 
-    output_folder = datafolder / "processed" / "bow-model"
+    output_folder = datafolder / "processed" / "tfidf-model"
     output_folder.mkdir(parents=True, exist_ok=True)
 
-    logger.info("Converting interim to processed data for BOW.")
     convert_interim_to_processed_data(
-        input_folder=datafolder / "interim", output_folder=output_folder
+        input_folder=datafolder / "interim",
+        output_folder=output_folder,
+        pipe=make_data_cleaning_pipeline(),
     )
+    logger.info("Successfully converted interim to processed data for tfidf model.")

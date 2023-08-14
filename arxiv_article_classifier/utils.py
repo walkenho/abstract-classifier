@@ -18,3 +18,14 @@ def display_fully(df: pd.DataFrame) -> None:
     pd.reset_option("display.width")
     pd.reset_option("display.float_format")
     pd.reset_option("display.max_colwidth")
+
+
+def save_image(fig, path, filename) -> None:
+    """Save image to png and html."""
+    fig.write_image(
+        path / f"{filename}.png",
+        width=1600,
+        height=800,
+        scale=2,
+    )
+    fig.write_html(path / f"{filename}.html")

@@ -26,6 +26,8 @@ tqdm = "^4.65.0"
 pylint = "^2.17.5"
 spacy = "^3.6.1"
 nltk = "^3.8.1"
+matplotlib = "^3.7.2"
+kaleido = "0.2.1"
 
 [tool.poetry.dev-dependencies]
 # Everything below here is alphabetically sorted

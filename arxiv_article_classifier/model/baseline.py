@@ -6,6 +6,8 @@ import numpy as np
 
 
 class DictionaryModel:
+    """Baseline Model Class."""
+
     def __init__(self, keywords: Dict, labelorder: Union[List, np.array]):
         self.keywords = keywords
         self.labelorder = labelorder

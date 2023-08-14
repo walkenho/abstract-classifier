@@ -58,8 +58,7 @@ def make_interim_data(
 
     Loads abstract data from input_folder/input_file, and performs a multilabel, stratified split.
     """
-    logger.info("Entering make_interim_data.")
-    logger.info("Read data.")
+    logger.debug("Inside make_interim_data.")
     df = pd.read_csv(input_file).assign(
         tags=lambda df: df["tags"].apply(
             lambda x: [tag for tag in ast.literal_eval(x) if tag in categories_to_keep]
@@ -82,7 +81,6 @@ def make_interim_data(
         abstracts, tag_matrix, test_size=test_size, validation_size=validation_size
     )
 
-    logger.info("Save data to %s.", output_folder)
     np.save(output_folder / "X_train.npy", x_train.flatten())
     np.save(output_folder / "X_val.npy", x_val.flatten())
     np.save(output_folder / "X_test.npy", x_test.flatten())
@@ -90,6 +88,9 @@ def make_interim_data(
     np.save(output_folder / "y_val.npy", y_val)
     np.save(output_folder / "y_test.npy", y_test)
     np.save(output_folder / "labels.npy", mlb.classes_)
+
+    logger.info("Succesfully saved interim data to %s.", output_folder)
+    logger.debug("Exiting make_interim_data")
 
 
 if __name__ == "__main__":

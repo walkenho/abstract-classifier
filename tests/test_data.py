@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from arxiv_article_classifier.data.make_processed_data_bow import (
+from arxiv_article_classifier.data.make_processed_data_tfidf import (
     LATEX_REGEX,
     delete_regular_expression,
 )

@@ -4,8 +4,11 @@ arxiv-data:
 interim-data:
 	poetry run python arxiv_article_classifier/data/make_interim_data.py
 
-processed-data: interim-data
-	poetry run python arxiv_article_classifier/data/make_processed_data_bow.py
+processed-data-tfidf: interim-data
+	poetry run python arxiv_article_classifier/data/make_processed_data_tfidf.py
+
+processed-data-distilbert: interim-data
+	poetry run python arxiv_article_classifier/data/make_processed_data_distilbert.py
 
 code-lint:
 	poetry run isort */*.py */*/*.py tests/*.py
