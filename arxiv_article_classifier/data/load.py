@@ -1,4 +1,4 @@
-"""Load data functionalities"""
+"""Load data functionalities."""
 from __future__ import annotations
 
 import pathlib

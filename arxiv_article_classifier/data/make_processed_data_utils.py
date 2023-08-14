@@ -1,4 +1,4 @@
-"""Data cleaning functionality"""
+"""Data cleaning functionality."""
 from __future__ import annotations
 
 import logging
